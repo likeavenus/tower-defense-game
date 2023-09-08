@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 
+import { fragment } from '../Shaders/fragment';
+
 export default class Game extends Phaser.Scene {
   bullet!: Phaser.GameObjects.Image;
   targetWave: number = 0;
@@ -8,6 +10,7 @@ export default class Game extends Phaser.Scene {
   height: number = 90;
   cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   path!: Phaser.Curves.Path;
+  wave!: Phaser.GameObjects.Shader;
 
   constructor() {
     super('Game');
@@ -28,6 +31,18 @@ export default class Game extends Phaser.Scene {
 
   create() {
     this.bullet = this.physics.add.image(100, 100, 'bullet');
+    const shader = new Phaser.Display.BaseShader('shader', fragment);
+
+    this.input.on('pointerdown', (pointer) => {
+      this.wave = this.add
+        .shader(shader, pointer.x, pointer.y, window.innerWidth * 2, window.innerHeight * 2)
+        .setOrigin(0.5)
+        .setDepth(20);
+    });
+
+    // this.wave = this.add.shader(shader, 0, 0, window.innerWidth, window.innerHeight).setOrigin(0).setDepth(20);
+
+    // this.add.shader('shader', 0, 0, 800, 600).setOrigin(0);
     this.targetWave = this.bullet.y + 80;
     this.height = this.bullet.y;
 
@@ -41,6 +56,12 @@ export default class Game extends Phaser.Scene {
     graphics.lineStyle(3, 0xffffff, 1);
 
     this.path.draw(graphics);
+
+    // const shader = this.add.shader('shader', 500, 500, 500, 500);
+    // shader.setShader('shader');
+    // this.bullet.setPipeline(shader);
+
+    // console.log('shader: ', shader);
   }
 
   update(t: number) {
