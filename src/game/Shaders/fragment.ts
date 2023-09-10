@@ -44,4 +44,4 @@ varying vec2 fragCoord;
         mainImage(gl_FragColor, fragCoord.xy);
         gl_FragColor.a = 0.0;
     }
-`;
+    `;
