@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import { fragment } from '../../Shaders/fragment';
+import { getRandomIntFromRange } from '../../helpers';
 
 import { TFolowerType } from './interfaces';
 
@@ -15,7 +16,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   wave!: Phaser.GameObjects.Shader;
   explosionValue = 0.0;
   explosion = false;
-  explosionSound = this.scene.sound.add('explosion').setVolume(0.2);
+  explosionSound = this.scene.sound.add('explosion').setVolume(3);
+  damageSound = this.scene.sound.add('enemy_damage').setVolume(1);
   damageFx = this.postFX.addBloom(0xffffff, 1, 1, 0, 2);
   damageFxTween = this.scene.tweens.add({
     targets: this.damageFx,
@@ -73,6 +75,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   receiveDamage(damage: number) {
     this.hp -= damage;
+    this.damageSound.setDetune(getRandomIntFromRange(500, 800));
+    this.damageSound.play();
 
     if (!this.damageFxTween.isPlaying()) {
       this.damageFxTween.restart();
