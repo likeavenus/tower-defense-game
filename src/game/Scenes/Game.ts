@@ -63,8 +63,8 @@ export default class Game extends Phaser.Scene {
   }
 
   placeTurret(pointer) {
-    var i = Math.floor(pointer.y / 64);
-    var j = Math.floor(pointer.x / 64);
+    const i = Math.floor(pointer.y / 64);
+    const j = Math.floor(pointer.x / 64);
 
     if (canPlaceTurret(i, j)) {
       if (this.points >= 100) {

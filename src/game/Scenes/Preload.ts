@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 
-import Bullet from '../assets/bullet.png';
-import SpritesPng from '../assets/spritesheet.png';
+import Bullet from '/tower-defense-assets/bullet.png';
+import SpritesPng from '/tower-defense-assets/spritesheet.png';
 import SpritesJson from '../assets/spritesheet.json';
 // import Shader from '../Shaders/fragment.glsl';
-import ExplosionMp3 from '../assets/explosion.mp3';
-import ShootMp3 from '../assets/shoot.mp3';
+import ExplosionMp3 from '/tower-defense-assets/explosion.mp3';
+import ShootMp3 from '/tower-defense-assets/shoot.mp3';
 
 export default class Preload extends Phaser.Scene {
   constructor() {

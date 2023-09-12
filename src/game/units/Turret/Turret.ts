@@ -11,7 +11,7 @@ export class Turret extends Phaser.Physics.Arcade.Sprite {
   isCustom = false;
   hp = 100;
   healthBar = this.scene.add.graphics();
-  shield = 1000;
+  shield = 500;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame: string) {
     super(scene, x, y, texture, frame);
@@ -25,7 +25,7 @@ export class Turret extends Phaser.Physics.Arcade.Sprite {
     const height = 4;
     const x = -width / 2;
     const healthPercentage = this.hp / 100;
-    const shieldPercentage = this.shield / 1000;
+    const shieldPercentage = this.shield / 500;
     this.healthBar.clear();
 
     this.healthBar.fillStyle(0xff0000);

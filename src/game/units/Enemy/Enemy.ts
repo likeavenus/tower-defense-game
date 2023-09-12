@@ -15,7 +15,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   wave!: Phaser.GameObjects.Shader;
   explosionValue = 0.0;
   explosion = false;
-  explosionSound = this.scene.sound.add('explosion').setVolume(1);
+  explosionSound = this.scene.sound.add('explosion').setVolume(0.2);
   damageFx = this.postFX.addBloom(0xffffff, 1, 1, 0, 2);
   damageFxTween = this.scene.tweens.add({
     targets: this.damageFx,
