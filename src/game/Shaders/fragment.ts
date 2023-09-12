@@ -4,6 +4,8 @@ precision mediump float;
 #endif
 uniform float time;
 uniform vec2 resolution;
+uniform float explosion;
+
 
 varying vec2 fragCoord;
 
@@ -30,10 +32,10 @@ varying vec2 fragCoord;
         
         float d = length(uv);
         
-        vec3 col = pal(length(uv0) - iTime);
+        vec3 col = pal(length(uv0) + explosion);
         
         
-        d = sin(d * 8. - iTime) / 8.;
+        d = sin(d  + explosion) / 7.;
         d=abs(d);
         
         d = 0.01 / d;

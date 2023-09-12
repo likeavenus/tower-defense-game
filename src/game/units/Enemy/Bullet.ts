@@ -5,7 +5,7 @@ export class Bullet extends Phaser.Physics.Arcade.Image {
   speed = 0;
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame: string) {
     super(scene, x, y, 'bullet', frame);
-    this.speed = Phaser.Math.GetSpeed(600, 1);
+    this.speed = Phaser.Math.GetSpeed(900, 0.9);
     scene.add.existing(this);
   }
 
@@ -22,7 +22,7 @@ export class Bullet extends Phaser.Physics.Arcade.Image {
   }
 
   update(time: number, delta: number) {
-    this.lifespan -= delta;
+    // this.lifespan -= delta;
     this.x += this.dx * (this.speed * delta);
     this.y += this.dy * (this.speed * delta);
     if (this.lifespan <= 0) {

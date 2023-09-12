@@ -29,3 +29,7 @@ export function drawGrid(graphics) {
 export function canPlaceTurret(i: number, j: number) {
   return MAP[i][j] === 0;
 }
+
+export function getRandomIntFromRange(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min) + min);
+}

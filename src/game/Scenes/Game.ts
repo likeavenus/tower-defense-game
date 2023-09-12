@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 
-import { fragment } from '../Shaders/fragment';
 import { Enemy } from '../units/Enemy';
 import { Turret } from '../units/Turret/Turret';
 import { drawGrid, canPlaceTurret } from '../helpers';
@@ -21,7 +20,11 @@ export default class Game extends Phaser.Scene {
   turrets!: Phaser.GameObjects.Group;
   bullets!: Phaser.GameObjects.Group;
   pointsText!: Phaser.GameObjects.Text;
-  points = 250;
+  points = 150;
+  explosion = 0;
+  level = 1;
+  customEnemy!: Enemy;
+  customTurret!: Turret;
 
   constructor() {
     super('Game');
@@ -78,7 +81,23 @@ export default class Game extends Phaser.Scene {
   }
 
   damageEnemy = (enemy: Enemy, bullet: Bullet) => {
+    if (enemy.visible && bullet.active) {
+      // we remove the bullet right away
+      bullet.setActive(false);
+      bullet.setVisible(false);
+
+      // decrease the enemy hp with BULLET_DAMAGE
+      enemy.receiveDamage(BULLET_DAMAGE);
+
+      if (enemy.hp <= 0) {
+        this.points += 40;
+        enemy.hp = 100;
+      }
+    }
     // only if both enemy and bullet are alive
+  };
+
+  damageTurret = (enemy: Turret, bullet: Bullet) => {
     if (enemy.active && bullet.active) {
       // we remove the bullet right away
       bullet.setActive(false);
@@ -88,34 +107,7 @@ export default class Game extends Phaser.Scene {
       enemy.receiveDamage(BULLET_DAMAGE);
 
       if (enemy.hp <= 0) {
-        this.points += 10;
-
-        const shader = new Phaser.Display.BaseShader('shader', fragment, undefined);
-        this.wave = this.add
-          .shader(shader, enemy.x, enemy.y, window.innerWidth * 2, window.innerHeight * 2)
-          .setOrigin(0.5)
-          .setDepth(20);
-        this.wave.setUniform('iTime', 0.0);
-
-        // cancelAnimationFrame(animationId);
-        // this.wave = this.add
-        //   .shader(shader, enemy.x, enemy.y, window.innerWidth * 2, window.innerHeight * 2)
-        //   .setOrigin(0.5)
-        //   .setDepth(20);
-
-        // setTimeout(() => {
-        //   this.wave.destroy();
-        // }, 1000);
-
-        // this.input.on('pointerdown', (pointer) => {
-        //   this.wave = this.add
-        //     .shader(shader, pointer.x, pointer.y, window.innerWidth * 2, window.innerHeight * 2)
-        //     .setOrigin(0.5);
-
-        //   setTimeout(() => {
-        //     this.wave.destroy(true);
-        //   }, 2000);
-        // });
+        this.points += 40;
         enemy.hp = 100;
       }
     }
@@ -125,21 +117,34 @@ export default class Game extends Phaser.Scene {
     const graphics = this.add.graphics();
     drawGrid(graphics);
     this.path = this.createPath();
-    this.pointsText = this.add.text(10, 10, this.points.toString());
+    this.pointsText = this.add.text(530, 10, this.points.toString());
 
     this.bullets = this.physics.add.group({
       classType: Bullet,
       runChildUpdate: true,
     });
 
+    this.enemyBullets = this.physics.add.group({
+      classType: Bullet,
+      runChildUpdate: true,
+    });
+    const step = 32;
+
     this.enemies = this.physics.add.group({
       defaultKey: 'sprites',
       classType: Enemy,
+      repeat: 8,
       runChildUpdate: true,
       createCallback: (enemy) => {
         enemy.path = this.path;
+        enemy.x = 96;
+        enemy.y = -32;
+        enemy.turrets = this.turrets;
+        enemy.bullets = this.enemyBullets;
       },
     });
+
+    // this.enemies.create(0, 0, 'sprites', 'enemy', true, true);
 
     this.turrets = this.physics.add.group({
       defaultKey: 'sprites',
@@ -151,55 +156,45 @@ export default class Game extends Phaser.Scene {
         turret.bullets = this.bullets;
       },
     });
+    // this.turrets.create(step * 7, step * 11, 'sprites', 'turret', true, true);
+    // this.customTurret = this.turrets.get(step * 7, step * 11, 'sprites', 'turret', true);
 
     this.physics.add.overlap(this.enemies, this.bullets, this.damageEnemy);
-
-    // this.enemies.create(96, 0, 'sprites', undefined);
-    // this.enemies.create(0, 0, 'sprites', this.path);
+    this.physics.add.overlap(this.turrets, this.enemyBullets, this.damageTurret);
 
     this.nextEnemy = 0;
 
-    // const shader = new Phaser.Display.BaseShader('shader', fragment, undefined);
-    // this.wave = this.add
-    //   .shader(shader, this.bullet.x, this.bullet.y, window.innerWidth * 2, window.innerHeight * 2)
-    //   .setOrigin(0.5)
-    //   .setDepth(20);
-
-    // this.input.on('pointerdown', (pointer) => {
-    //   this.wave = this.add
-    //     .shader(shader, pointer.x, pointer.y, window.innerWidth * 2, window.innerHeight * 2)
-    //     .setOrigin(0.5);
-
-    //   setTimeout(() => {
-    //     this.wave.destroy(true);
-    //   }, 2000);
-    // });
-
     this.input.on('pointerdown', (pointer) => this.placeTurret(pointer));
-    // this.targetWave = this.bullet.y + 100;
-    // this.height = this.bullet.y;
   }
 
   update(time: number, delta: number) {
-    // console.log('this.points: ', this.points);
-
+    // const customTurret = this.turrets.getChildren()[0] as Turret;
     this.pointsText.text = `Points: ${this.points}`;
     if (this.points < 100) {
       this.pointsText.setColor('red');
     } else {
       this.pointsText.setColor('#ffffff');
     }
+
     if (time > this.nextEnemy) {
-      const enemy = this.enemies.get();
+      const enemy: Enemy = this.enemies.get();
+
+      // enemy.update();
       if (enemy) {
         // place the enemy at the start of the path
         enemy.startOnPath();
 
-        this.nextEnemy = time + 2000;
-
+        this.nextEnemy = time + 900;
         enemy.setActive(true);
         enemy.setVisible(true);
       }
+    }
+
+    if (this.points <= 0) {
+      this.scene.stop();
+      this.scene.launch('Preloader');
+      this.turrets.clear(true);
+      this.points = 150;
     }
   }
 }
